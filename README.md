@@ -46,7 +46,7 @@ src/
 │   ├── Chat.vue             # 核心聊天窗口组件
 │   └── chat.css             # 聊天样式
 ├── App.vue                  # Web Component 宿主，悬浮球 + 聊天窗口
-└── main.ts                  # 入口，注册 <cohirer-data-x> 自定义元素
+└── main.ts                  # 入口，注册 <er-biz-x> 自定义元素
 ```
 
 ---
@@ -80,24 +80,24 @@ python app.py
 npm run build
 ```
 
-构建产物：`dist/cohirer-data-x.js`（单文件，SVG 等小资源已内联为 base64）
+构建产物：`dist/er-biz-x.js`（单文件，SVG 等小资源已内联为 base64）
 
 ---
 
 ## 嵌入使用
 
-将构建产物 `cohirer-data-x.js` 部署到静态服务器，在目标页面引入：
+将构建产物 `er-biz-x.js` 部署到静态服务器，在目标页面引入：
 
 ```html
-<script type="module" src="./cohirer-data-x.js"></script>
+<script type="module" src="./er-biz-x.js"></script>
 
-<cohirer-data-x
+<er-biz-x
   endpoint="/api/chat"
   bot-name="ER数据助手"
   welcome-text="你好，我是ER数据智能助手，有什么可以帮你？"
   color-primary="#2DC8C8"
   biz-params='{"user_prompt_params":{"user_id":"123"}}'
-></cohirer-data-x>
+></er-biz-x>
 ```
 
 ### 属性说明（Props）

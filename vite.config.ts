@@ -13,7 +13,7 @@ export default defineConfig({
       generateBundle() {
         const indexHtml = readFileSync('index.html', 'utf8').replace(
           /<script type="module" src="\/src\/main\.ts"><\/script>/,
-          '<script type="module" src="./cohirer-data-x.js"></script>',
+          '<script type="module" src="./er-biz-x.js"></script>',
         );
         this.emitFile({
           type: 'asset',
@@ -42,7 +42,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 10000,
     rollupOptions: {
       output: {
-        entryFileNames: 'cohirer-data-x.js',
+        entryFileNames: 'er-biz-x.js',
         chunkFileNames: '[name]-[hash].js',
         assetFileNames: '[name]-[hash][extname]',
       },
