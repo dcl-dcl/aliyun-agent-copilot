@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ER 数据智能助手</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: linear-gradient(135deg, #1E222D 0%, #2a3340 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .demo-container {
+        padding: 40px 20px;
+        text-align: center;
+        width: 100%;
+        max-width: 1200px;
+        box-sizing: border-box;
+      }
+
+      .demo-title {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 16px;
+      }
+
+      .demo-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.2rem;
+        margin-bottom: 40px;
+      }
+
+      .web-component-demo {
+        margin: 40px auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        max-width: 800px;
+        min-height: 250px;
+        position: static;
+      }
+
+      .demo-instructions {
+        text-align: left;
+        margin-bottom: 30px;
+      }
+
+      .demo-instructions h3 {
+        color: #333;
+        margin-bottom: 16px;
+      }
+
+      .demo-instructions ul {
+        color: #666;
+        line-height: 1.6;
+      }
+
+      .demo-instructions li {
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <h1 class="demo-title">ER 数据智能助手</h1>
+      <p class="demo-subtitle">基于 ant-design-x-vue 的智能聊天助手 Web Component 演示</p>
+
+      <!-- Web Component Test Area -->
+      <div class="web-component-demo">
+        <div class="demo-instructions">
+          <h3>测试说明：</h3>
+          <ul>
+            <li>右下角有 AI 助手按钮，点击可以打开聊天窗口</li>
+            <li>支持流式 SSE 响应，实时显示 AI 回复</li>
+            <li>支持思考过程展开查看</li>
+            <li>使用 ant-design-x-vue 的 BubbleList 和 Sender 组件</li>
+          </ul>
+        </div>
+
+        <!-- The Cohirer Web Component，支持通过 attribute 传参 -->
+        <cohirer-data-x
+          endpoint="/api/chat"
+          bot-name="ER测试数据助手"
+          welcome-text="你好，我是ER测试数据智能助手&#10;请将您要分析的数据或问题告诉我"
+          parsed-biz-params='{"user_prompt_params":{"user_id":"73220"}}'
+        ></cohirer-data-x>
+      </div>
+    </div>
+
+    <!-- Load the Web Component script -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

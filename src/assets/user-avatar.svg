@@ -1,0 +1,45 @@
+<svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  <defs>
+    <clipPath id='u_circle'>
+      <circle cx='16' cy='16' r='16'/>
+    </clipPath>
+    <!-- 背景改为系统品牌青绿色渐变 -->
+    <radialGradient id='u_bg' cx='50%' cy='50%' r='75%'>
+      <stop offset='0%' stop-color='#2DC8C8' />
+      <stop offset='100%' stop-color='#1E222D' />
+    </radialGradient>
+    <linearGradient id='u_skin' x1='0' y1='0' x2='0' y2='1'>
+      <stop offset='0%' stop-color='#ffdfcc' />
+      <stop offset='100%' stop-color='#f5b895' />
+    </linearGradient>
+    <!-- 衣服改为系统深色 -->
+    <linearGradient id='u_jacket' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0%' stop-color='#1E222D' />
+      <stop offset='100%' stop-color='#11141a' />
+    </linearGradient>
+  </defs>
+  <g clip-path='url(#u_circle)'>
+    <circle cx='16' cy='16' r='16' fill='url(#u_bg)'/>
+    <g transform='scale(0.0625)'>
+      <circle cx='256' cy='256' r='225' stroke='#fff' stroke-width='1.5' opacity='0.08' />
+      <path d='M220 315h72v70h-72z' fill='url(#u_skin)' />
+      <path d='M120 512c0-52 38-102 88-122h96c50 20 88 70 88 122H120z' fill='url(#u_jacket)' />
+      <path d='M226 390h60l-10 45h-40z' fill='#f1f5f9' />
+      <!-- 领带/细节改为系统青绿 -->
+      <path d='M253 390h6v45h-6z' fill='#2DC8C8' />
+      <circle cx='168' cy='245' r='20' fill='#ffdfcc' />
+      <circle cx='344' cy='245' r='20' fill='#f5b895' />
+      <path d='M180 230c0-90 20-95 76-95s76 5 76 95-27 112-76 112-76-27-76-112z' fill='url(#u_skin)' />
+      <path d='M250 225l6 19 6-19z' fill='#e5a383' opacity='0.9' />
+      <path d='M242 282c4 4 10 13 28 0' stroke='#a7684d' stroke-width='3' stroke-linecap='round' />
+      <!-- 头发改为系统深黑色 -->
+      <path d='M168 215c-8-45 12-100 72-105 50-5 100 5 104 75 1 15-14 15-14 0 0-35-40-55-74-55-41 0-66 30-66 85z' fill='#1E222D' />
+      <!-- 镜框改为系统深黑色 -->
+      <rect x='186' y='205' width='58' height='38' rx='8' stroke='#1E222D' stroke-width='4.5' />
+      <rect x='268' y='205' width='58' height='38' rx='8' stroke='#1E222D' stroke-width='4.5' />
+      <path d='M244 218h24' stroke='#1E222D' stroke-width='5' />
+      <!-- 高光点缀改为系统青绿 -->
+      <path d='M192 225l25-15m57 15l25-15' stroke='#2DC8C8' stroke-width='4' stroke-linecap='round' />
+    </g>
+  </g>
+</svg>
