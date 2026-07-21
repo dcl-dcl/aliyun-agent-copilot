@@ -26,7 +26,6 @@
 - **会话管理**：自动维护 `session_id`，支持开启新对话
 - **停止生成**：流式输出中途可主动中断
 - **Web Component**：构建产物为单一 JS 文件，Shadow DOM 隔离样式，嵌入无副作用
-- **主题色定制**：通过 `color-primary` 属性自定义主色调
 - **悬浮球入口**：页面右下角固定悬浮按钮，点击展开/收起聊天窗口
 
 ---
@@ -95,7 +94,6 @@ npm run build
   endpoint="/api/chat"
   bot-name="ER数据助手"
   welcome-text="你好，我是ER数据智能助手，有什么可以帮你？"
-  color-primary="#2DC8C8"
   biz-params='{"user_prompt_params":{"user_id":"123"}}'
 ></er-biz-x>
 ```
@@ -109,7 +107,6 @@ npm run build
 | `welcome-text` | string | — | 欢迎语，首次打开时展示 |
 | `bot-avatar` | string | 内置 SVG | 机器人头像 URL |
 | `user-avatar` | string | 内置 SVG | 用户头像 URL |
-| `color-primary` | string | `#2DC8C8` | 主题色（十六进制） |
 | `biz-params` | string | — | 业务参数，JSON 字符串，透传给后端 `biz_params` 字段 |
 
 ---
