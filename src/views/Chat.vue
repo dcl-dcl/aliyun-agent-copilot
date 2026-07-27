@@ -22,7 +22,7 @@ export interface Props {
  * 因此把带变量引用的默认值放到普通 <script> 中，通过模块作用域常量引用。
  */
 export const defaultProps = {
-  endpoint: '/api/chat',
+  endpoint: './api',
   botName: 'ER数据助手',
   welcomeText: '你好，我是ER数据智能助手\n请将您要分析的数据或问题告诉我',
   botAvatar: agentAvatarUrl,
@@ -217,8 +217,8 @@ async function sendMessage(message?: string) {
         input: {
           prompt: content,
           session_id: sessionId.value,
+          biz_params: props.bizParams,
         },
-        biz_params: props.bizParams,
         parameters: {
           incremental_output: true,
           has_thoughts: showThoughts.value,
