@@ -216,28 +216,9 @@
         { user_id: '73220', level: 'Leader', name: 'Steven Cui' },
         { user_id: '73229', level: 'Leader', name: 'Taler Liu' },
         { user_id: '274442', level: 'Sub Leader', name: 'Rita Yang' },
+        { user_id: '172214', level: '普通顾问', name: 'Yvonne Guo' },
         { user_id: '531315', level: '普通顾问', name: 'Sally Liu' },
       ]
-
-      // 渲染用户卡片列表
-      const userList = document.getElementById('user-list')
-      USERS.forEach((user, index) => {
-        const initials = user.name.split(' ').map(w => w[0]).join('')
-        const card = document.createElement('div')
-        card.className = 'user-card'
-        card.dataset.user = JSON.stringify(user)
-        card.innerHTML = `
-          <div class="user-avatar">${initials}</div>
-          <div class="user-card-info">
-            <div class="user-card-name">${user.name}</div>
-            <div class="user-card-level">${user.level}</div>
-          </div>`
-        card.addEventListener('click', () => onUserChange(card))
-        userList.appendChild(card)
-      })
-
-      // 默认选中第一个用户
-      onUserChange(userList.firstElementChild)
 
       function onUserChange(card) {
         const erBizX = document.querySelector('er-biz-x')
@@ -261,6 +242,31 @@
         infoLevel.textContent = user.level
         infoDisplay.classList.add('visible')
       }
+
+      // 等待自定义元素升级完成后再渲染，避免重复执行
+      customElements.whenDefined('er-biz-x').then(() => {
+        const userList = document.getElementById('user-list')
+        // 幂等保护：已初始化则跳过
+        if (userList.children.length > 0) return
+
+        USERS.forEach((user) => {
+          const initials = user.name.split(' ').map(w => w[0]).join('')
+          const card = document.createElement('div')
+          card.className = 'user-card'
+          card.dataset.user = JSON.stringify(user)
+          card.innerHTML = `
+            <div class="user-avatar">${initials}</div>
+            <div class="user-card-info">
+              <div class="user-card-name">${user.name}</div>
+              <div class="user-card-level">${user.level}</div>
+            </div>`
+          card.addEventListener('click', () => onUserChange(card))
+          userList.appendChild(card)
+        })
+
+        // 默认选中第一个用户
+        onUserChange(userList.firstElementChild)
+      })
     </script>
   </body>
 </html>
