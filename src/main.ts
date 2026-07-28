@@ -9,4 +9,6 @@ const CohirerElement = defineCustomElement(App, {
 });
 
 // Register the custom element
-customElements.define('er-biz-x', CohirerElement);
+if (!customElements.get('er-biz-x')) {
+  customElements.define('er-biz-x', CohirerElement);
+}

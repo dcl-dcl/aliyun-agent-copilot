@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 export default defineConfig({
   base: './',
@@ -41,6 +42,7 @@ export default defineConfig({
     assetsInlineLimit: 10240,
     chunkSizeWarningLimit: 10000,
     rollupOptions: {
+      input: resolve(__dirname, 'src/main.ts'),
       output: {
         entryFileNames: 'er-biz-x.js',
         chunkFileNames: '[name]-[hash].js',
