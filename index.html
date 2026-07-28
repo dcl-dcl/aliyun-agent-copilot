@@ -222,9 +222,6 @@
 
       function onUserChange(card) {
         const erBizX = document.querySelector('er-biz-x')
-        const infoDisplay = document.getElementById('user-info-display')
-        const infoName = document.getElementById('user-info-name')
-        const infoLevel = document.getElementById('user-info-level')
 
         // 更新选中状态
         document.querySelectorAll('.user-card').forEach(c => c.classList.remove('active'))
@@ -236,11 +233,6 @@
         erBizX.setAttribute('biz-params', JSON.stringify({
           user_prompt_params: { user_id: user.user_id }
         }))
-
-        // 显示用户信息
-        infoName.textContent = user.name
-        infoLevel.textContent = user.level
-        infoDisplay.classList.add('visible')
       }
 
       // 等待自定义元素升级完成后再渲染，避免重复执行
