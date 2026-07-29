@@ -1,5 +1,4 @@
 <script lang="ts">
-import { agentAvatarUrl, userAvatarUrl } from '../shared/utils';
 import type { Thought } from '../shared/sse';
 
 export interface Props {
@@ -9,10 +8,6 @@ export interface Props {
   botName?: string;
   /** 居中欢迎介绍语 */
   welcomeText?: string;
-  /** 机器人头像，支持图片 URL 或 SVG data URI */
-  botAvatar?: string;
-  /** 用户头像，支持图片 URL 或 SVG data URI */
-  userAvatar?: string;
   /** 额外业务参数，会随请求体一起发送 */
   bizParams?: Record<string, unknown>;
 }
@@ -25,8 +20,6 @@ export const defaultProps = {
   endpoint: './api',
   botName: 'ER数据助手',
   welcomeText: '你好，我是ER数据智能助手\n请将您要分析的数据或问题告诉我',
-  botAvatar: agentAvatarUrl,
-  userAvatar: userAvatarUrl,
   bizParams: () => ({}),
 };
 
@@ -46,7 +39,7 @@ import {
 import MarkdownIt from 'markdown-it';
 import { renderAssistantMessage, renderCopyFooter, renderThoughts } from '../composables/useMessageRender';
 import { useCopyMessage } from '../composables/useCopyMessage';
-import { createMessageKey, debounce } from '../shared/utils';
+import { agentAvatarUrl, createMessageKey, debounce, userAvatarUrl } from '../shared/utils';
 import {
   mergeThoughts,
   normalizePayload,
@@ -92,6 +85,7 @@ const isSending = ref(false);
 const showThoughts = ref(true);
 const senderError = ref<string | null>(null);
 const abortController = ref<AbortController>();
+const activeRequestId = ref(0);
 const listRef = ref<InstanceType<typeof BubbleList>>();
 const { copiedMessageKey, copyMessage } = useCopyMessage();
 
@@ -128,7 +122,7 @@ const roles: BubbleListProps['roles'] = (bubbleData, index) => {
   if (bubbleData.role === 'user') {
     return {
       placement: 'end' as const,
-      avatar: { src: props.userAvatar, style: { borderRadius: '10px' } },
+      avatar: { src: userAvatarUrl, style: { borderRadius: '10px' } },
       variant: 'filled' as const,
       styles: {
         content: {
@@ -143,7 +137,7 @@ const roles: BubbleListProps['roles'] = (bubbleData, index) => {
   if (!messageRenderCache.has(index)) {
     messageRenderCache.set(index, {
       placement: 'start' as const,
-      avatar: { src: props.botAvatar, style: { borderRadius: '10px', flexShrink: '0', alignSelf: 'flex-start' } },
+      avatar: { src: agentAvatarUrl, style: { borderRadius: '10px', flexShrink: '0', alignSelf: 'flex-start' } },
       variant: 'shadow' as const,
       styles: { content: { maxWidth: '88%' } },
       onTypingComplete: sendingDone,
@@ -179,9 +173,15 @@ function applyPayload(msg: Message, raw: StreamPayload) {
   return payload;
 }
 
+function isActiveRequest(requestId: number) {
+  return activeRequestId.value === requestId;
+}
+
 async function sendMessage(message?: string) {
   const content = (message ?? prompt.value).trim();
   if (!content || isSending.value) return;
+  const requestId = activeRequestId.value + 1;
+  activeRequestId.value = requestId;
   hasChat.value = true;
   senderError.value = null;
 
@@ -238,9 +238,14 @@ async function sendMessage(message?: string) {
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
+      if (!isActiveRequest(requestId)) {
+        await reader.cancel().catch(() => undefined);
+        return;
+      }
 
       buffer += decoder.decode(value, { stream: true });
       buffer = parseSseChunk(buffer, (raw) => {
+        if (!isActiveRequest(requestId)) return;
         const payload = applyPayload(assistantMessage, raw);
         if (payload.finishReason !== undefined) {
           assistantMessage.loading = payload.finishReason === 'null' || payload.finishReason === null;
@@ -251,10 +256,12 @@ async function sendMessage(message?: string) {
 
     if (buffer.trim()) {
       parseSseChunk(`${buffer}\n\n`, (raw) => {
+        if (!isActiveRequest(requestId)) return;
         applyPayload(assistantMessage, raw);
       });
     }
 
+    if (!isActiveRequest(requestId)) return;
     assistantMessage.loading = false;
     triggerRef(messages);
     if (!assistantMessage.content.trim()) {
@@ -262,6 +269,7 @@ async function sendMessage(message?: string) {
       triggerRef(messages);
     }
   } catch (error) {
+    if (!isActiveRequest(requestId)) return;
     if ((error as Error).name === 'AbortError') {
       assistantMessage.content = assistantMessage.content || '已停止本次回复。';
     } else {
@@ -272,10 +280,12 @@ async function sendMessage(message?: string) {
     assistantMessage.loading = false;
     triggerRef(messages);
   } finally {
-    isStreaming.value = false;
-    abortController.value = undefined;
-    sendingDone();
-    repaint();
+    if (isActiveRequest(requestId)) {
+      isStreaming.value = false;
+      abortController.value = undefined;
+      sendingDone();
+      repaint();
+    }
   }
 }
 
@@ -284,7 +294,9 @@ function stopStreaming() {
 }
 
 function clearChat() {
+  activeRequestId.value += 1;
   if (isStreaming.value) stopStreaming();
+  abortController.value = undefined;
   sessionId.value = undefined;
   messages.value = [];
   messageRenderCache.clear();
@@ -301,7 +313,7 @@ function clearChat() {
 <template>
   <section :class="['er-data-chat-window', { 'er-data-chat-window--expanded': expanded }]">
     <header class="er-data-chat-header">
-      <img :src="botAvatar" alt="" class="er-data-chat-header__avatar" />
+      <img :src="agentAvatarUrl" alt="" class="er-data-chat-header__avatar" />
       <div class="er-data-chat-header__info">
         <span class="er-data-chat-header__title">{{ botName }}</span>
       </div>
@@ -331,7 +343,7 @@ function clearChat() {
 
     <div class="er-data-chat-body">
       <div v-if="!hasChat" class="er-data-chat-welcome">
-        <img :src="botAvatar" alt="" class="er-data-chat-welcome__avatar" />
+        <img :src="agentAvatarUrl" alt="" class="er-data-chat-welcome__avatar" />
         <p class="er-data-chat-welcome__text">{{ welcomeText }}</p>
       </div>
 

@@ -16,6 +16,14 @@ export function useCopyMessage() {
   const copiedMessageKey = ref<string | null>(null);
   let copyResetTimer: number | undefined;
 
+  function markCopied(key: string) {
+    copiedMessageKey.value = key;
+    if (copyResetTimer) window.clearTimeout(copyResetTimer);
+    copyResetTimer = window.setTimeout(() => {
+      if (copiedMessageKey.value === key) copiedMessageKey.value = null;
+    }, 1500);
+  }
+
   async function copyMessage(message?: { key: string; content: string }) {
     const text = String(message?.content || '').trim();
     const key = message?.key;
@@ -28,14 +36,10 @@ export function useCopyMessage() {
         fallbackCopyText(text);
       }
 
-      copiedMessageKey.value = key;
-      if (copyResetTimer) window.clearTimeout(copyResetTimer);
-      copyResetTimer = window.setTimeout(() => {
-        if (copiedMessageKey.value === key) copiedMessageKey.value = null;
-      }, 1500);
+      markCopied(key);
     } catch {
       fallbackCopyText(text);
-      copiedMessageKey.value = key;
+      markCopied(key);
     }
   }
 

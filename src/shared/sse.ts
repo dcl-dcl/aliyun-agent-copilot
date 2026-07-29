@@ -50,6 +50,8 @@ export function normalizePayload(raw: StreamPayload): NormalizedPayload {
 
 /** incremental_output 模式下 thought/response 等字段是增量片段，需要拼接而非替换 */
 export function mergeThoughts(prev: Thought[], next: Thought[]): Thought[] {
+  if (!next.length) return prev;
+
   return next.map((nt, i) => {
     const pt = prev[i];
     // 没有前一条，或者 action_name 不同（新的 thought 条目），直接用新的
@@ -76,7 +78,8 @@ export function parseSseChunk(
   buffer: string,
   onPayload: (payload: StreamPayload) => void,
 ): string {
-  const events = buffer.split('\n\n');
+  const normalizedBuffer = buffer.replace(/\r\n/g, '\n');
+  const events = normalizedBuffer.split('\n\n');
   const rest = events.pop() || '';
 
   for (const event of events) {

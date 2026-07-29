@@ -105,8 +105,6 @@ npm run build
 | `endpoint` | string | `/api/chat` | 后端 Chat API 地址 |
 | `bot-name` | string | `ER数据助手` | 机器人名称，显示在聊天窗口标题 |
 | `welcome-text` | string | — | 欢迎语，首次打开时展示 |
-| `bot-avatar` | string | 内置 SVG | 机器人头像 URL |
-| `user-avatar` | string | 内置 SVG | 用户头像 URL |
 | `biz-params` | string | — | 业务参数，JSON 字符串，透传给后端 `biz_params` 字段 |
 
 ---
