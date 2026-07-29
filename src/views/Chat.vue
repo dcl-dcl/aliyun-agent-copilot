@@ -46,7 +46,7 @@ import {
 import MarkdownIt from 'markdown-it';
 import { renderAssistantMessage, renderCopyFooter, renderThoughts } from '../composables/useMessageRender';
 import { useCopyMessage } from '../composables/useCopyMessage';
-import { debounce } from '../shared/utils';
+import { createMessageKey, debounce } from '../shared/utils';
 import {
   mergeThoughts,
   normalizePayload,
@@ -186,12 +186,12 @@ async function sendMessage(message?: string) {
   senderError.value = null;
 
   const userMessage: Message = {
-    key: crypto.randomUUID(),
+    key: createMessageKey(),
     role: 'user',
     content,
   };
   const assistantMessage: Message = {
-    key: crypto.randomUUID(),
+    key: createMessageKey(),
     role: 'ai',
     content: '',
     thoughts: [],
