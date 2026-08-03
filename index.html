@@ -69,7 +69,7 @@
         margin-bottom: 8px;
       }
 
-      .user-switcher {
+      .profile-status {
         margin-bottom: 24px;
         padding: 16px 20px;
         background: #f5f7fa;
@@ -77,104 +77,46 @@
         border: 1px solid #e8ecf0;
       }
 
-      .user-switcher-label {
+      .profile-status__label {
         color: #333;
         font-weight: 500;
         margin-bottom: 12px;
         font-size: 20px;
       }
 
-      .user-list {
+      .profile-status__body {
         display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-
-      .user-card {
-        display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 10px;
-        padding: 10px 16px;
-        background: white;
-        border: 2px solid #d0d7de;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: border-color 0.2s, box-shadow 0.2s;
-        user-select: none;
+        min-height: 36px;
+        text-align: center;
       }
 
-      .user-card:hover {
-        border-color: #1677ff;
-        box-shadow: 0 2px 8px rgba(22, 119, 255, 0.15);
-      }
-
-      .user-card.active {
-        border-color: #1677ff;
-        background: #e6f4ff;
-      }
-
-      .user-avatar {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #1677ff;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 14px;
-        flex-shrink: 0;
-      }
-
-      .user-card-info {
-        text-align: left;
-      }
-
-      .user-card-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #333;
-        line-height: 1.3;
-      }
-
-      .user-card-level {
-        font-size: 12px;
-        color: #888;
-        margin-top: 2px;
-      }
-
-      .current-user-display {
-        display: none;
-        margin-top: 16px;
-        padding-top: 14px;
-        border-top: 1px solid #e8ecf0;
-      }
-
-      .current-user-display.visible {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .current-user-label {
+      .profile-status__caption {
         font-size: 13px;
         color: #888;
         white-space: nowrap;
       }
 
-      .user-info-name {
-        font-size: 1.5rem;
+      .profile-status__value {
+        font-size: 13px;
+        font-weight: 400;
+        color: #888;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+        margin-top: 4px;
+      }
+
+      .profile-status__meta {
+        font-size: 28px;
         font-weight: 700;
         color: #1677ff;
         line-height: 1.2;
+        overflow-wrap: anywhere;
       }
 
-      .user-info-level {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #52c41a;
-        margin-left: 10px;
+      .profile-status__error {
+        color: #d4380d;
       }
     </style>
   </head>
@@ -185,9 +127,11 @@
 
       <!-- Web Component Test Area -->
       <div class="web-component-demo">
-        <div class="user-switcher">
-          <div class="user-switcher-label">模拟用户</div>
-          <div class="user-list" id="user-list"></div>
+        <div class="profile-status">
+          <div class="profile-status__label">当前用户</div>
+          <div class="profile-status__body" id="profile-status">
+            <span class="profile-status__caption">正在读取登录用户...</span>
+          </div>
         </div>
 
         <div class="demo-instructions">
@@ -202,6 +146,7 @@
 
         <!-- The Cohirer Web Component，支持通过 attribute 传参 -->
         <er-biz-x
+          hidden
           endpoint="./api"
           bot-name="ER测试数据助手"
           welcome-text="你好，我是ER测试数据智能助手&#10;请将您要分析的数据或问题告诉我"
@@ -212,53 +157,154 @@
     <!-- Load the Web Component script -->
     <script type="module" src="/src/main.ts"></script>
     <script type="module">
-      const USERS = [
-        { user_id: '73220', level: 'Leader', name: 'Steven Cui' },
-        { user_id: '73229', level: 'Leader', name: 'Taler Liu' },
-        { user_id: '274442', level: 'Sub Leader', name: 'Rita Yang' },
-        { user_id: '172214', level: '普通顾问', name: 'Yvonne Guo' },
-        { user_id: '531315', level: '普通顾问', name: 'Sally Liu' },
-      ]
+      function pickProfile(source) {
+        if (!source || typeof source !== 'object') return null
+        if (source.user_id || source.id) return {
+          ...source,
+          user_id: source.user_id || source.id,
+        }
 
-      function onUserChange(card) {
-        const erBizX = document.querySelector('er-biz-x')
+        const candidates = [
+          source.data,
+          source.objects,
+          source.profile,
+          source.my_profile,
+          source.my_profiles,
+          source.profiles,
+          source.result,
+        ]
 
-        // 更新选中状态
-        document.querySelectorAll('.user-card').forEach(c => c.classList.remove('active'))
-        card.classList.add('active')
+        for (const candidate of candidates) {
+          if (Array.isArray(candidate)) {
+            const matched = candidate.find(item => item && typeof item === 'object' && (item.user_id || item.id))
+            if (matched) return pickProfile(matched)
+            continue
+          }
+          if (candidate && typeof candidate === 'object') {
+            const matched = pickProfile(candidate)
+            if (matched) return matched
+          }
+        }
 
-        const user = JSON.parse(card.dataset.user)
-
-        // 更新 biz-params
-        erBizX.setAttribute('biz-params', JSON.stringify({
-          user_prompt_params: { user_id: user.user_id }
-        }))
+        return null
       }
 
-      // 等待自定义元素升级完成后再渲染，避免重复执行
-      customElements.whenDefined('er-biz-x').then(() => {
-        const userList = document.getElementById('user-list')
-        // 幂等保护：已初始化则跳过
-        if (userList.children.length > 0) return
+      function getDisplayName(profile) {
+        return profile.name || profile.display_name || profile.user_name || profile.nickname || profile.email || ''
+      }
 
-        USERS.forEach((user) => {
-          const initials = user.name.split(' ').map(w => w[0]).join('')
-          const card = document.createElement('div')
-          card.className = 'user-card'
-          card.dataset.user = JSON.stringify(user)
-          card.innerHTML = `
-            <div class="user-avatar">${initials}</div>
-            <div class="user-card-info">
-              <div class="user-card-name">${user.name}</div>
-              <div class="user-card-level">${user.level}</div>
-            </div>`
-          card.addEventListener('click', () => onUserChange(card))
-          userList.appendChild(card)
-        })
+      function renderCurrentUser(profile) {
+        const status = document.getElementById('profile-status')
+        status.replaceChildren()
 
-        // 默认选中第一个用户
-        onUserChange(userList.firstElementChild)
-      })
+        const content = document.createElement('div')
+
+        const displayName = getDisplayName(profile)
+        if (displayName) {
+          const meta = document.createElement('div')
+          meta.className = 'profile-status__meta'
+          meta.textContent = displayName
+          content.appendChild(meta)
+        }
+
+        const userId = document.createElement('div')
+        userId.className = 'profile-status__value'
+        userId.textContent = `user_id: ${profile.user_id}`
+        content.appendChild(userId)
+
+        status.appendChild(content)
+      }
+
+      function renderProfileError(message) {
+        const status = document.getElementById('profile-status')
+        status.replaceChildren()
+
+        const error = document.createElement('span')
+        error.className = 'profile-status__error'
+        error.textContent = message
+        status.appendChild(error)
+      }
+
+      function setCopilotVisible(visible) {
+        const erBizX = document.querySelector('er-biz-x')
+        if (erBizX) erBizX.hidden = !visible
+      }
+
+      function getCopilotElement() {
+        return document.querySelector('er-biz-x')
+      }
+
+      function getProfileUrl() {
+        const endpoint = getCopilotElement()?.getAttribute('endpoint') || './api'
+        const base = endpoint.endsWith('/') ? endpoint : `${endpoint}/`
+        return new URL('my_profile', new URL(base, window.location.href)).toString()
+      }
+
+      function renderLoginRequired(status) {
+        const suffix = status ? `（HTTP ${status}）` : ''
+        renderProfileError(`请先登录 Starlinks 后再使用 ER 数据智能助手。${suffix}`)
+      }
+
+      function isFetchBlocked(error) {
+        return error instanceof TypeError && error.message === 'Failed to fetch'
+      }
+
+      function createProfileApiError(response) {
+        return new Error(`获取用户身份失败，HTTP 状态码：${response.status} ${response.statusText}`)
+      }
+
+      function buildBizParams(profile) {
+        return {
+          user_prompt_params: { user_id: String(profile.user_id) },
+        }
+      }
+
+      function bindCurrentUser(profile) {
+        const erBizX = getCopilotElement()
+        if (!erBizX) throw new Error('未找到 ER 数据智能助手组件')
+        erBizX.setAttribute('biz-params', JSON.stringify(buildBizParams(profile)))
+        setCopilotVisible(true)
+        renderCurrentUser(profile)
+      }
+
+      async function loadCurrentUser() {
+        await customElements.whenDefined('er-biz-x')
+
+        try {
+          const response = await fetch(getProfileUrl(), {
+            credentials: 'include',
+            cache: 'no-store',
+          })
+
+          if (response.status === 401) {
+            setCopilotVisible(false)
+            renderLoginRequired(response.status)
+            return
+          }
+
+          if (!response.ok) {
+            throw createProfileApiError(response)
+          }
+
+          const payload = await response.json()
+          const profile = pickProfile(payload)
+          if (!profile?.user_id) {
+            throw new Error('响应中未找到 user_id')
+          }
+
+          bindCurrentUser(profile)
+        } catch (error) {
+          setCopilotVisible(false)
+          if (isFetchBlocked(error)) {
+            renderProfileError(`无法连接登录态接口，请确认已登录 Starlinks，且网络或代理可用。`)
+            return
+          }
+          const message = error instanceof Error ? error.message : String(error)
+          renderProfileError(`无法获取当前用户：${message}`)
+        }
+      }
+
+      loadCurrentUser()
     </script>
   </body>
 </html>
