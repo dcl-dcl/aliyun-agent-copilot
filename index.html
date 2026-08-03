@@ -236,8 +236,8 @@
 
       function getProfileUrl() {
         const endpoint = getCopilotElement()?.getAttribute('endpoint') || './api'
-        const base = endpoint.endsWith('/') ? endpoint : `${endpoint}/`
-        return new URL('my_profile', new URL(base, window.location.href)).toString()
+        const resolvedEndpoint = new URL(endpoint.endsWith('/') ? endpoint : `${endpoint}/`, window.location.href)
+        return new URL('/api/get_profile', resolvedEndpoint).toString()
       }
 
       function renderLoginRequired(status) {
